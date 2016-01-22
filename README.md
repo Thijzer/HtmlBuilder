@@ -3,7 +3,7 @@
 
 This is a Minimal Html Element Collection Bundle.
 
-This builds the most common required generated items like 
+This will eventually build the most common required generated items like 
 
 - nav menu
 - sub menu
@@ -24,7 +24,7 @@ It can also process forms but prefurable without any business logic attached.
 An example of forms is assets and other datagrid filters. 
 These formTypes are not handled by your controller and don't need any
 
-# Here is a careful example of how to setup a data table
+# Example
 
 ```php
 $table = new \Html\Table();
@@ -40,15 +40,14 @@ $table
     ->add('absolute_url', 'link')
 ;
 ```
-In this example you simple instanciate the table and add every row corresponding the column name inside the table.
-The second parameter is the function you wish the value pass in.
+Here is a careful example of how to setup a data table
+In this example you simple instanciate the table and add every row corresponding to the column name inside the table.
+The second parameter is optional and exposes the modifier you wish the value pass in.
 
-Rendering the table is only done at render when the template engine requests to output the table
+Rendering the table is only done when the template engine requests to output the table
 
 ```php
-
 $table->render()
-
 ```
 
 
