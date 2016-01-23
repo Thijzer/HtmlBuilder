@@ -1,0 +1,8 @@
+{
+    "require": {
+        "codeguy/arachnid": "^1.0"
+    },
+    "autoload": {
+        "psr-0": { "Html": "src" }
+    }
+}
