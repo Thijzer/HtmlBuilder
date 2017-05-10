@@ -1,64 +1,30 @@
 <?php
 
-namespace Html;
+namespace Html\Element;
 
-/**
- * Simple Table Builder
- */
+use Html\Html;
+
 class Table
 {
-    /**
-     * list of used function modifiers.
-     *
-     * @var array
-     */
     private $function;
 
-    /**
-     * rowCount.
-     *
-     * @var [type]
-     */
-    private $i;
+    private $i = null;
+    private $rows = [];
+    private $column = [];
 
-    /**
-     * rowData.
-     *
-     * @var rows
-     */
-    private $rows;
-
-    /**
-     * columnData.
-     *
-     * @var rows
-     */
-    private $column;
-
-    public function __construct()
+    public function __construct(array $data = [])
     {
-        $this->i = null;
-    }
-
-    public function setData($data)
-    {
-        foreach ($data as $value) {
-            $this->addRow($value);
+        foreach ($data as $rowData) {
+            $this->addRow($rowData);
         }
     }
 
-    /**
-     * adding a row.
-     */
-    private function addRow($row)
+    private function addRow(array $rowData)
     {
-        $this->rows[] = $row;
+        $this->rows[] = $rowData;
     }
 
-    /**
-     * adding a row.
-     */
-    public function add($th, $function = null)
+    public function addColumn(string $th, $function = null)
     {
         $this->column[] = $th;
 
@@ -69,12 +35,12 @@ class Table
         return $this;
     }
 
-    /**
-     * render the table.
-     *
-     * @return
-     */
-    public function render()
+    public function __toString()
+    {
+        return $this->render();
+    }
+
+    public function render() : string
     {
         $tr = Html::elem('tr');
         $th = Html::elem('th');
@@ -83,14 +49,14 @@ class Table
         // head
         $thList = null;
         foreach ($this->column as $ColName) {
-            $thcopy = $th;
-            $thList .= $thcopy->end($ColName);
+            $thcopy = clone $th;
+            $thList .= $thcopy->_add($ColName);
         }
 
         // body
         $trList = null;
         foreach ($this->rows as $row) {
-            $trcopy = $tr;
+            $trCopy = clone $tr;
             $tdList = null;
             foreach ($this->column as $ColName) {
                 $rowName = isset($row[$ColName]) ? $row[$ColName] : '';
@@ -101,22 +67,22 @@ class Table
                 }
 
                 // table data
-                $tdcopy = $td;
-                $tdList .= $tdcopy->end($rowName);
+                $tdCopy = clone $td;
+                $tdList .= $tdCopy->_add($rowName);
             }
-            $trList .= $trcopy->end($tdList);
+            $trList .= $trCopy->_add($tdList);
         }
 
-        // structure
+        // structure_close
         $table = Html::elem('table');
         $thead = Html::elem('thead');
         $tbody = Html::elem('tbody');
 
         return $table
             ->class('table table-bordered table-hover')
-            ->end(
-                $thead->class('thead-default')->end($thList).
-                $tbody->end($trList)
+            ->_add(
+                $thead->class('thead-default')->_add($thList).
+                $tbody->_add($trList)
             );
     }
 
@@ -139,6 +105,6 @@ class Table
 
     public function link($value)
     {
-        return html::elem('a')->href($value)->end($value);
+        return Html::elem('a')->href($value)->_add($value);
     }
 }

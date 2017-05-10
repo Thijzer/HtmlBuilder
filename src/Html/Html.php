@@ -2,97 +2,73 @@
 
 namespace Html;
 
+/**
+ * @method Html href(mixed $attribute)
+ * @method Html class(mixed $attribute)
+ */
 class Html
 {
-    /**
-     * standard html rule set
-     * @var array
-     */
-    protected $standard = array('input' => "<input *>", 'elem'  => "<%elem% *></%elem%>");
+    private $build;
+    private $children = [];
+    private $args = [];
 
-    /**
-     * Default arrays
-     * @var array
-     */
-    protected $elem = array();
-
-    /**
-     * start element holder
-     * @var array
-     */
-    protected $start = array();
-
-    /**
-     * collector of args
-     * @var array
-     */
-    protected $args = array();
-
-    /**
-     * singleton element
-     *
-     * @param  string $elem
-     *
-     * @return self html
-     */
-    public static function elem($elem)
+    public function __construct($build)
     {
-        if (is_string($elem)) {
-            $instance = new Html();
-            $instance->start = ($elem == 'input') ?
-                $instance->standard['input'] :
-                str_replace('%elem%', $elem, $instance->standard['elem']);
-            return $instance;
-        }
+        $this->build = $build;
     }
 
-    /**
-     * magic method that will render arguments
-     *
-     * @param  [type] $method [description]
-     * @param  [type] $args   [description]
-     *
-     * @return self html
-     */
-    public function __call($method, $args)
+    public static function elem(string $elem)
     {
-        if ($method == 'type' && count($args) > 1) {
+        return new Html('<'.$elem.' *></'.$elem.'>');
+    }
+
+    public static function solidus(string $elem)
+    {
+        return new Html('<'.$elem.' * />');
+    }
+
+    public function __call(string $method, $args)
+    {
+        if ($method === 'type' && count($args) > 1) {
             return $this;
         }
-        $method = str_replace('__', '-', $method);
-        $this->args[$method] = $args;
+        $this->args[str_replace('__', '-', $method)] = $args;
+
         return $this;
     }
 
-    /**
-     * builds or renders the collected arguments
-     *
-     * @param  string $val
-     * @return string result
-     */
-    public function end($val = '')
+    public function _add($elem)
     {
-        $this->elem = $this->start;
+        $this->children[] = $elem;
+
+        return $this;
+    }
+
+    private function render() : string
+    {
+        $elem = $this->build;
+
+        // arg builder of current
         foreach ($this->args as $name => $arg) {
             $arg = implode(' ', $arg);
-            $this->elem = str_replace('*', "$name=\"$arg\" *", $this->elem);
+            $elem = str_replace('*', "$name=\"$arg\" *", $elem);
         }
-        return str_replace(' *>', '>' . $val, $this->elem);
+
+        return str_replace(' *>', '>'. implode('',$this->children), $elem);
     }
 
-    /**
-     * options description]
-     *
-     * @param  [type] $name [description]
-     *
-     * @return [type]       [description]
-     */
-    public function options($name)
+    public function __toString()
     {
-        if (is_array($name)) {
-            $name = implode(' ', $name);
-        }
-        $this->elem = str_replace('*', "$name *", $this->elem);
-        return $this;
+        return $this->render();
     }
+
+//    public function options($name)
+//    {
+//        if (is_array($name)) {
+//            $name = implode(' ', $name);
+//        }
+//        $this->elem = str_replace('*', "$name *", $this->elem);
+//
+//        return $this;
+//    }
 }

@@ -1,13 +1,9 @@
 <?php
 
-namespace Html;
+namespace Html\Element;
 
-/**
- *
- */
-class Datagrid
+class ListItem
 {
-
     public function __construct()
     {
         # code...
