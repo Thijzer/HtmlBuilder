@@ -1,8 +1,6 @@
 # HtmlBuilder
-===================
 
 ### Goals
-=========
 This Repo is meant to making dynamic html elements easier.
 Most of the known component should be available as a set.
 
