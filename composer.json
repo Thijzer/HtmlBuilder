@@ -1,8 +1,9 @@
 {
     "name": "thijzer/html-builder",
     "license": "MIT",
-    "type": "project",
-    "description": "Simple PHP Htlm component builder",
+    "keywords": ["html-builder", "php"],
+    "description": "Simple PHP Html component builder",
+    "version": "0.1.1",
     "autoload": {
         "psr-0": { "Html": "src" }
     },
