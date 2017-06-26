@@ -1,39 +1,84 @@
 <?php
 
 namespace Html\Element;
+use Romano\Bundle\ACoreBundle\Service;
 
 use Html\Html;
 
-class   Pagination
+class Pagination
 {
     use CollectionTrait;
     use BuildTrait;
 
-    public function addLink($url, $index)
+    private $paging;
+    private $pageCount;
+
+    public function __construct(Service\Pagination $paging, int $pageCount = 5)
     {
-        $this->items[$index] = $url;
+        $this->paging = $paging;
+        $this->pageCount = $pageCount;
     }
 
     public function build()
     {
         $nav = Html::elem('nav');
         $anchor = Html::elem('a');
-        $spanA = Html::elem('span');
-        $buttonA = clone $anchor;
-        $buttonB = clone $anchor;
-        $spanB = clone $spanA;
-
-        $buttonA->href('#')->aria__label('Previous')->_add($spanA->_add('&laquo;'));
-        $buttonB->href('#')->aria__label('Next')->_add($spanB->_add('&raquo;'));
+        $span = Html::elem('span');
+        $page = '?page=';
 
         $list = new UnsortedList();
-        $list->addItem($buttonA);
-        foreach ($this->items as $index => $url) {
-            $anchorClone = clone $anchor;
-            $list->addItem($anchorClone->href($url)->_add($index));
-        }
-        $list->addItem($buttonB);
 
-        return $nav->_add($list);
+        if ($this->paging->getCurrentPage() > 2) {
+            $buttonFirst = clone $anchor;
+            $spanA = clone $span;
+            $buttonFirst->href($page.'1')->aria__label('First')->_add($spanA->_add('&laquo;&laquo;'));
+            $list->addItem($buttonFirst);
+        }
+        if ($this->paging->getCurrentPage() > 1) {
+            $buttonPrevious = clone $anchor;
+            $spanB = clone $span;
+            $buttonPrevious->href($page.$this->paging->getPreviousPage())->aria__label('Previous')->_add($spanB->_add('&laquo;'));
+            $list->addItem($buttonPrevious);
+        }
+
+        $current = (int) $this->paging->getCurrentPage();
+        $max = (int) $this->paging->getNbPages();
+        $pCount = (int) $max < $this->pageCount ? $max : $this->pageCount;
+        $balance = (int) round(($pCount -1) / 2);
+        $lowest = (int) $current - $balance;
+        $highest = (int) $current + $balance;
+
+        while ($highest < $pCount) {
+            $lowest++;
+            $highest++;
+        }
+        while ($lowest > $max - $pCount + 1) {
+            $lowest--;
+            $highest--;
+        }
+        while ($lowest <= $highest) {
+            $i = $lowest;
+            $anchorClone = clone $anchor;
+            $isActive = $i === $current;
+            $list->addItem($anchorClone->href($isActive ?'#':$page.$i)->_add($i), $isActive ? function (Html $li) {
+                return $li->class('active');
+            }: null);
+            $lowest++;
+        }
+
+        if ($this->paging->getNbPages() > $current) {
+            $buttonNext = clone $anchor;
+            $spanC = clone $span;
+            $buttonNext->href($page.$current)->aria__label('Next')->_add($spanC->_add('&raquo;'));
+            $list->addItem($buttonNext);
+        }
+        if ($this->paging->getNbPages()-1 > $current) {
+            $buttonLast = clone $anchor;
+            $spanD = clone $span;
+            $buttonLast->href($page.$max)->aria__label('Last')->_add($spanD->_add('&raquo;&raquo;'));
+            $list->addItem($buttonLast);
+        }
+
+        return $nav->_add($list->build()->class('pagination'));
     }
 }

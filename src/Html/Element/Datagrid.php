@@ -3,16 +3,19 @@
 namespace Html\Element;
 
 use Html\Html;
+use Romano\Bundle\ACoreBundle\Service;
 
 class Datagrid
 {
     use BuildTrait;
 
+    private $paging;
     private $table;
 
-    public function __construct(array $data = [])
+    public function __construct(Service\Pagination $paging)
     {
-        $this->table = new Table($data);
+        $this->paging = $paging;
+        $this->table = new Table();
     }
 
     public function getTable()
@@ -20,16 +23,26 @@ class Datagrid
         return $this->table;
     }
 
+    public function createButton(string $url, string $name, string $label = null)
+    {
+        $span = Html::elem('span');
+        return Html::elem('a')->href($url)->_add($span->class('label '.$label)->_add($name));
+    }
+
     public function build()
     {
-        $div = Html::elem('div');
-        $pagination = new Pagination();
+        $this->table->setData($this->paging->getCurrentPageResults());
 
+        return Html::elem('div')->id('datagrid')
+            ->_add($this->table)
+            ->_add($this->getPagination())
+        ;
+    }
 
-        for ($i = 1; $i <= 5; $i++) {
-            $pagination->addLink('#', $i);
+    private function getPagination()
+    {
+        if ($this->paging->haveToPaginate()) {
+            return new Pagination($this->paging);
         }
-
-        return $div->_add($this->table)->_add($pagination);
     }
 }

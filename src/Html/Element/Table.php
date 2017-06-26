@@ -14,8 +14,13 @@ class Table
 
     public function __construct(array $data = [])
     {
+        $this->setData($data);
+    }
+
+    public function setData(array $data)
+    {
         foreach ($data as $rowData) {
-            $this->addRow($rowData);
+            $this->addRow((array) $rowData);
         }
     }
 
@@ -24,12 +29,12 @@ class Table
         $this->rows[] = $rowData;
     }
 
-    public function addColumn(string $th, $function = null)
+    public function addColumn(string $ColName, $function = null)
     {
-        $this->column[] = $th;
+        $this->column[] = $ColName;
 
-        if (null !== $function) {
-            $this->function[$th] = $function;
+        if ($function) {
+            $this->function[$ColName] = $function;
         }
 
         return $this;
@@ -63,7 +68,7 @@ class Table
 
                 // functions
                 if (isset($this->function[$ColName])) {
-                    $rowName = $this->{$this->function[$ColName]}($rowName);
+                    $rowName = call_user_func($this->function[$ColName], $row, $ColName);
                 }
 
                 // table data
@@ -101,10 +106,5 @@ class Table
     public function arrayCount($value)
     {
         return count($value);
-    }
-
-    public function link($value)
-    {
-        return Html::elem('a')->href($value)->_add($value);
     }
 }
