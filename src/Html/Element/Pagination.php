@@ -1,8 +1,8 @@
 <?php
 
 namespace Html\Element;
-use Romano\Bundle\ACoreBundle\Service;
 
+use Html\Functions\PaginationInterface;
 use Html\Html;
 
 class Pagination
@@ -13,10 +13,15 @@ class Pagination
     private $paging;
     private $pageCount;
 
-    public function __construct(Service\Pagination $paging, int $pageCount = 5)
+    public function __construct(PaginationInterface $paging, int $pageCount = 5)
     {
         $this->paging = $paging;
         $this->pageCount = $pageCount;
+    }
+
+    private function allowComplexPagination() : bool
+    {
+        return $this->pageCount > $this->paging->getNbPages();
     }
 
     public function build()
@@ -28,7 +33,7 @@ class Pagination
 
         $list = new UnsortedList();
 
-        if ($this->paging->getCurrentPage() > 2) {
+        if ($this->allowComplexPagination() && $this->paging->getCurrentPage() > 2) {
             $buttonFirst = clone $anchor;
             $spanA = clone $span;
             $buttonFirst->href($page.'1')->aria__label('First')->_add($spanA->_add('&laquo;&laquo;'));
@@ -72,7 +77,7 @@ class Pagination
             $buttonNext->href($page.$current)->aria__label('Next')->_add($spanC->_add('&raquo;'));
             $list->addItem($buttonNext);
         }
-        if ($this->paging->getNbPages()-1 > $current) {
+        if ($this->allowComplexPagination() && $this->paging->getNbPages()-1 > $current) {
             $buttonLast = clone $anchor;
             $spanD = clone $span;
             $buttonLast->href($page.$max)->aria__label('Last')->_add($spanD->_add('&raquo;&raquo;'));

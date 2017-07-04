@@ -3,7 +3,7 @@
 namespace Html\Element;
 
 use Html\Html;
-use Romano\Bundle\ACoreBundle\Service;
+use Html\Functions\PaginationInterface;
 
 class Datagrid
 {
@@ -12,7 +12,7 @@ class Datagrid
     private $paging;
     private $table;
 
-    public function __construct(Service\Pagination $paging)
+    public function __construct(PaginationInterface $paging)
     {
         $this->paging = $paging;
         $this->table = new Table();
