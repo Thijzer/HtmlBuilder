@@ -21,7 +21,7 @@ class Pagination
 
     private function allowComplexPagination() : bool
     {
-        return $this->pageCount > $this->paging->getNbPages();
+        return $this->paging->getNbPages() > $this->pageCount;
     }
 
     public function build()
