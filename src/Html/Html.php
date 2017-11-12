@@ -7,6 +7,7 @@ namespace Html;
  * @method Html class(mixed $attribute)
  * @method Html id(mixed $attribute)
  * @method Html aria__label(mixed $attribute)
+ * @method Html type(mixed $attribute)
  */
 class Html
 {
@@ -29,6 +30,7 @@ class Html
         return new Html('<'.$elem.' * />');
     }
 
+    /**@return Html */
     public function _attr(string $method, $args)
     {
         if ($method === 'type' && count($args) > 1) {
@@ -39,11 +41,13 @@ class Html
         return $this;
     }
 
+    /**@return Html */
     public function __call(string $method, $args)
     {
         return $this->_attr($method, $args);
     }
 
+    /**@return Html */
     public function _add($elem)
     {
         $this->children[] = $elem;

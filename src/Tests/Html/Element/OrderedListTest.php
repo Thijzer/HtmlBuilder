@@ -2,16 +2,16 @@
 
 namespace Tests\Html\Element;
 
-use Html\Element\SortedList;
+use Html\Element\OrderedList;
 use Html\Html;
 
-/** @covers SortedList */
-class SortedListTest extends \PHPUnit\Framework\TestCase
+/** @covers OrderedList */
+class OrderedListTest extends \PHPUnit\Framework\TestCase
 {
     /** @test */
     public function it_should_make_a_basic_sorted_list()
     {
-        $sorted = new SortedList();
+        $sorted = new OrderedList();
 
         $anchor = Html::elem('a')->href('#');
 

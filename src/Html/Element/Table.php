@@ -6,9 +6,8 @@ use Html\Html;
 
 class Table
 {
-    private $function;
-
-    private $i = null;
+    private $i;
+    private $modifiers = [];
     private $rows = [];
     private $column = [];
 
@@ -34,7 +33,7 @@ class Table
         $this->column[] = $ColName;
 
         if ($function) {
-            $this->function[$ColName] = $function;
+            $this->modifiers[$ColName] = $function;
         }
 
         return $this;
@@ -54,8 +53,8 @@ class Table
         // head
         $thList = null;
         foreach ($this->column as $ColName) {
-            $thcopy = clone $th;
-            $thList .= $thcopy->_add($ColName);
+            $thCopy = clone $th;
+            $thList .= $thCopy->_add($ColName);
         }
 
         // body
@@ -64,11 +63,11 @@ class Table
             $trCopy = clone $tr;
             $tdList = null;
             foreach ($this->column as $ColName) {
-                $rowName = isset($row[$ColName]) ? $row[$ColName] : '';
+                $rowName = $row[$ColName] ?? '';
 
                 // functions
-                if (isset($this->function[$ColName])) {
-                    $rowName = call_user_func($this->function[$ColName], $row, $ColName);
+                if (isset($this->modifiers[$ColName])) {
+                    $rowName = call_user_func($this->modifiers[$ColName], $row, $ColName);
                 }
 
                 // table data
@@ -80,14 +79,14 @@ class Table
 
         // structure_close
         $table = Html::elem('table');
-        $thead = Html::elem('thead');
-        $tbody = Html::elem('tbody');
+        $tHead = Html::elem('thead');
+        $tBody = Html::elem('tbody');
 
         return $table
             ->class('table table-bordered table-hover')
             ->_add(
-                $thead->class('thead-default')->_add($thList).
-                $tbody->_add($trList)
+                $tHead->class('thead-default')->_add($thList).
+                $tBody->_add($trList)
             );
     }
 

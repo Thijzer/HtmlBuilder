@@ -9,7 +9,7 @@ class Select implements FormElement
     use BuildTrait;
     use ArgumentTrait;
 
-    private $options = [];
+    private $options;
 
     public function __construct(array $options)
     {
@@ -21,7 +21,7 @@ class Select implements FormElement
         $option = Html::elem('option');
         $select = Html::elem('select');
 
-        if (isset($this->options[0])) {
+        if ($this->options) {
             $this->options = array_combine($this->options, $this->options);
         }
 

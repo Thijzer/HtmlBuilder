@@ -4,14 +4,14 @@ namespace Html\Element;
 
 use Html\Html;
 
-class UnsortedList
+class OrderedList
 {
     use CollectionTrait;
     use BuildTrait;
 
     public function build()
     {
-        $ul = Html::elem('ul');
+        $ol = Html::elem('ol');
         $li = Html::elem('li');
 
         foreach ($this->items as $key => $item) {
@@ -22,9 +22,9 @@ class UnsortedList
                 $cloneLi = call_user_func($this->functions[$key], $cloneLi);
             }
 
-            $ul->_add($cloneLi->_add($item));
+            $ol->_add($cloneLi->_add($item));
         }
 
-        return $ul;
+        return $ol;
     }
 }

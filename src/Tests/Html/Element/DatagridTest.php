@@ -39,7 +39,7 @@ class DatagridTest extends \PHPUnit\Framework\TestCase
         ];
 
         $data = [];
-        foreach ($list as $key =>$listName) {
+        foreach ($list as $key => $listName) {
             $data[] = [
                 'name' => $listName,
                 'order' => $key,
