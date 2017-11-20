@@ -4,7 +4,7 @@ namespace Html\Element;
 
 use Html\Html;
 
-class UnorderedList
+class UnOrderedList
 {
     use CollectionTrait;
     use BuildTrait;

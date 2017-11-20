@@ -4,16 +4,26 @@ namespace Html\Element;
 
 use Html\Functions\NavigationInterface;
 use Html\Html;
+use Html\Modifier\ModifierMatcher;
 
 class Navigation implements NavigationInterface
 {
+    use BuildTrait;
+
     private $url;
-    private $routes = [];
     private $name;
+    private $matcher;
+    private $collection;
 
     public function __construct(string $name)
     {
         $this->name = $name;
+        $this->collection = new NavigationItemCollection();
+    }
+
+    public function setModifierMatcher(ModifierMatcher $matcher)
+    {
+        $this->matcher = $matcher;
     }
 
     public function getName(): string
@@ -21,10 +31,10 @@ class Navigation implements NavigationInterface
         return $this->name;
     }
 
-    public function addChild(string $name, array $route = null) : Navigation
+    public function addChild(string $name, string $route, array $options = null) : Navigation
     {
-        $route['name'] = $name;
-        $this->routes[$name] =  $route;
+        $item = new NavigationItem($name, $route);
+        $this->collection->addNavigationItem($item);
 
         return $this;
     }
@@ -43,12 +53,14 @@ class Navigation implements NavigationInterface
             ->data__target('#navbarsExampleDefault')
             ->aria__controls('navbarsExampleDefault')
         ;
+        $nav->_add($button->_add($span));
 
         $isActive = false;
 
         $listItems = new UnOrderedList();
-        foreach ($this->routes as $route) {
+        foreach ($this->collection->getNavigationItems() as $navigationItem) {
             $cloneNavItem = clone $navItem;
+            $route = $this->matcher ? $this->matcher->getMatches($navigationItem->toArray()) : $navigationItem->toArray();
             $listItems->addItem($cloneNavItem->href($route['uri']), $isActive ? function (Html $li) {
                 return $li->class('active');
             }: null);
@@ -68,6 +80,6 @@ class Navigation implements NavigationInterface
             );
         }
 
-        return $nav->_add($button->_add($span))->_add($div->_add($listItems));
+        return $nav->_add($div->_add($listItems));
     }
 }

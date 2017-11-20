@@ -6,5 +6,5 @@ use Html\Element\Navigation;
 
 interface NavigationInterface
 {
-    public function addChild(string $name, array $options = []) : Navigation;
+    public function addChild(string $name, string $route, array $options = []) : Navigation;
 }

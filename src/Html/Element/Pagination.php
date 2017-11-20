@@ -4,7 +4,6 @@ namespace Html\Element;
 
 use Html\Functions\PaginationInterface;
 use Html\Html;
-use phpDocumentor\Reflection\Types\This;
 
 class Pagination
 {
@@ -33,7 +32,7 @@ class Pagination
         $anchor = Html::elem('a');
         $span = Html::elem('span');
 
-        $list = new UnsortedList();
+        $list = new UnorderedList();
 
         if ($this->allowComplexPagination() && $this->paging->getCurrentPage() > 2) {
             $buttonFirst = clone $anchor;
