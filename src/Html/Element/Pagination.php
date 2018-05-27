@@ -32,7 +32,7 @@ class Pagination
         $anchor = Html::elem('a');
         $span = Html::elem('span');
 
-        $list = new UnorderedList();
+        $list = new UnOrderedList();
 
         if ($this->allowComplexPagination() && $this->paging->getCurrentPage() > 2) {
             $buttonFirst = clone $anchor;
