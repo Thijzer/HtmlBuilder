@@ -29,7 +29,7 @@ class Pagination
     public function build()
     {
         $nav = Html::elem('nav');
-        $anchor = Html::elem('a');
+        $anchor = Html::elem('a')->class('page-link');
         $span = Html::elem('span');
 
         $list = new UnOrderedList();
@@ -75,7 +75,7 @@ class Pagination
             $anchorClone = clone $anchor;
             $isActive = $i === $current;
             $list->addItem($anchorClone->href($isActive ?'#':static::PAGE.$i)->_add($i), $isActive ? function (Html $li) {
-                return $li->class('active');
+                return $li->class('page-item active');
             }: null);
             $lowest++;
         }
@@ -101,6 +101,8 @@ class Pagination
             $list->addItem($buttonLast);
         }
 
-        return $nav->_add($list->build()->class('pagination'));
+        $li = Html::elem('li')->class('page-item');
+
+        return $nav->_add($list->build(null, $li)->class('pagination'));
     }
 }

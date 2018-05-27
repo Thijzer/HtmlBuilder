@@ -9,17 +9,17 @@ class UnOrderedList
     use CollectionTrait;
     use BuildTrait;
 
-    public function build()
+    public function build(Html $ul = null, Html $li = null)
     {
-        $ul = Html::elem('ul');
-        $li = Html::elem('li');
+        $ul =  $ul ?: Html::elem('ul');
+        $li = $li ?: Html::elem('li');
 
         foreach ($this->items as $key => $item) {
             $cloneLi = clone $li;
 
             // functions
             if (isset($this->functions[$key])) {
-                $cloneLi = call_user_func($this->functions[$key], $cloneLi);
+                $cloneIL = call_user_func($this->functions[$key], $cloneLi);
             }
 
             $ul->_add($cloneLi->_add($item));
