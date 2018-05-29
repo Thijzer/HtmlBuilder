@@ -12,13 +12,23 @@ class Pagination
 
     const PAGE = '?page=';
 
+    private $labels = [
+        'links' => [
+            'first' => '&laquo;&laquo;',
+            'previous' => '&laquo;',
+            'next' => '&raquo;',
+            'last' => '&raquo;&raquo;',
+        ]
+    ];
+
     private $paging;
     private $pageCount;
 
-    public function __construct(PaginationInterface $paging, int $pageCount = 5)
+    public function __construct(PaginationInterface $paging, int $pageCount = 5, array $labels = [])
     {
         $this->paging = $paging;
         $this->pageCount = $pageCount;
+        $this->labels = array_merge($this->labels, $labels);
     }
 
     private function allowComplexPagination() : bool
@@ -40,7 +50,7 @@ class Pagination
             $buttonFirst
                 ->href(static::PAGE.'1')
                 ->aria__label('First')
-                ->_add($spanA->_add('&laquo;&laquo;'))
+                ->_add($spanA->_add($this->labels['links']['first']))
             ;
             $list->addItem($buttonFirst);
         }
@@ -50,7 +60,7 @@ class Pagination
             $buttonPrevious
                 ->href(static::PAGE.$this->paging->getPreviousPage())
                 ->aria__label('Previous')
-                ->_add($spanB->_add('&laquo;'))
+                ->_add($spanB->_add($this->labels['links']['previous']))
             ;
             $list->addItem($buttonPrevious);
         }
@@ -84,9 +94,9 @@ class Pagination
             $buttonNext = clone $anchor;
             $spanC = clone $span;
             $buttonNext
-                ->href(static::PAGE.$current)
+                ->href(static::PAGE.(1+$current))
                 ->aria__label('Next')
-                ->_add($spanC->_add('&raquo;'))
+                ->_add($spanC->_add($this->labels['links']['next']))
             ;
             $list->addItem($buttonNext);
         }
@@ -96,7 +106,7 @@ class Pagination
             $buttonLast
                 ->href(static::PAGE.$max)
                 ->aria__label('Last')
-                ->_add($spanD->_add('&raquo;&raquo;'))
+                ->_add($spanD->_add($this->labels['links']['last']))
             ;
             $list->addItem($buttonLast);
         }

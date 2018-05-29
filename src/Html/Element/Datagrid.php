@@ -26,7 +26,7 @@ class Datagrid
     public function createButton(string $url, string $name, string $label = null)
     {
         $span = Html::elem('span');
-        return Html::elem('a')->href($url)->_add($span->class('label '.$label)->_add($name));
+        return Html::elem('a')->href($url)->_add($span->class('badge '.$label)->_add($name));
     }
 
     public function build()
