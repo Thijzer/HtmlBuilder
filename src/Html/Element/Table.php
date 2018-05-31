@@ -83,7 +83,7 @@ class Table
         $tBody = Html::elem('tbody');
 
         return $table
-            ->class('table table-bordered table-hover')
+            ->class('table table-striped table-sm')
             ->_add(
                 $tHead->class('thead-default')->_add($thList).
                 $tBody->_add($trList)
