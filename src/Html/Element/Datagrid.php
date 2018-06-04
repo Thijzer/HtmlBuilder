@@ -23,10 +23,15 @@ class Datagrid
         return $this->table;
     }
 
+    public function createLink(string $url, string $name)
+    {
+        return Html::elem('a')->href($url)->_add($name);
+    }
+
     public function createButton(string $url, string $name, string $label = null)
     {
         $span = Html::elem('span');
-        return Html::elem('a')->href($url)->_add($span->class('badge '.$label)->_add($name));
+        return $this->createButton($url, $name)->_add($span->class('badge '.$label));
     }
 
     public function build()
