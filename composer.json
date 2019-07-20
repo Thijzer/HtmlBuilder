@@ -3,7 +3,6 @@
     "license": "MIT",
     "keywords": ["html-builder", "php"],
     "description": "Simple PHP Html component builder",
-    "version": "0.1.1",
     "autoload": {
         "psr-0": { "Html": "src/Html" }
     },
