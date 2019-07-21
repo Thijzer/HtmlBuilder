@@ -4,6 +4,7 @@ namespace Html\Element;
 
 use Html\Html;
 use Html\Functions\PaginationInterface;
+use Html\Modifier\TemplateModifier;
 
 class Datagrid
 {
@@ -38,10 +39,12 @@ class Datagrid
     {
         $this->table->setData($this->paging->getCurrentPageResults());
 
-        return Html::elem('div')->id('datagrid')
+        $datagrid = Html::elem('div')
             ->_add($this->table)
             ->_add($this->getPagination())
         ;
+
+        return TemplateModifier::modify(Datagrid::class, $datagrid);
     }
 
     private function getPagination()

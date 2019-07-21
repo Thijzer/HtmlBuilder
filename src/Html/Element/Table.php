@@ -3,6 +3,7 @@
 namespace Html\Element;
 
 use Html\Html;
+use Html\Modifier\TemplateModifier;
 
 class Table
 {
@@ -82,12 +83,9 @@ class Table
         $tHead = Html::elem('thead');
         $tBody = Html::elem('tbody');
 
-        return $table
-            ->class('table table-striped table-sm')
-            ->_add(
-                $tHead->class('thead-default')->_add($thList).
-                $tBody->_add($trList)
-            );
+        $table->_add($tHead->_add($thList), $tBody->_add($trList));
+
+        return TemplateModifier::modify(Table::class, $table);
     }
 
     // list of modifiers

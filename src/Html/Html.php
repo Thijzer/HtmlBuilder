@@ -11,23 +11,25 @@ namespace Html;
  */
 class Html
 {
+    private $tag;
     private $build;
     private $children = [];
     private $args = [];
 
-    public function __construct($build)
+    public function __construct($build, $tag = null)
     {
         $this->build = $build;
+        $this->tag = $tag;
     }
 
     public static function elem(string $elem)
     {
-        return new Html('<'.$elem.' *></'.$elem.'>');
+        return new Html('<'.$elem.' *></'.$elem.'>', $elem);
     }
 
     public static function solidus(string $elem)
     {
-        return new Html('<'.$elem.' * />');
+        return new Html('<'.$elem.' * />', $elem);
     }
 
     /**@return Html */
@@ -48,14 +50,21 @@ class Html
     }
 
     /**@return Html */
-    public function _add($elem)
+    public function _add(...$elems)
     {
-        $this->children[] = $elem;
+        foreach ($elems as  $elem) {
+            $this->children[] = $elem;
+        }
 
         return $this;
     }
 
-    private function render() : string
+    public function children(): array
+    {
+        return $this->children;
+    }
+
+    private function render(): string
     {
         $elem = $this->build;
 

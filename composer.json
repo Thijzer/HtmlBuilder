@@ -4,7 +4,7 @@
     "keywords": ["html-builder", "php"],
     "description": "Simple PHP Html component builder",
     "autoload": {
-        "psr-0": { "Html": "src/Html" }
+        "psr-0": { "Html\\": "src/Html" }
     },
     "require":{
         "php": ">=7.0.0"

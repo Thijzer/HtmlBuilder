@@ -2,8 +2,10 @@
 
 namespace Html\Element;
 
+use Html\Calculator\PagingCalculator;
 use Html\Functions\PaginationInterface;
 use Html\Html;
+use Html\Modifier\TemplateModifier;
 
 class Pagination
 {
@@ -65,29 +67,16 @@ class Pagination
             $list->addItem($buttonPrevious);
         }
 
-        $current = $this->paging->getCurrentPage();
-        $max = $this->paging->getNbPages();
-        $pageCount = $max < $this->pageCount ? $max : $this->pageCount;
-        $balance = (int) round(($pageCount -1) / 2);
-        $lowest = $current - $balance;
-        $highest = $current + $balance;
+        $pager = PagingCalculator::calculate($this->paging, $this->pageCount);
+        $current = $pager['current'];
 
-        while ($highest < $pageCount) {
-            $lowest++;
-            $highest++;
-        }
-        while ($lowest > $max - $pageCount + 1) {
-            $lowest--;
-            $highest--;
-        }
-        while ($lowest <= $highest) {
-            $i = $lowest;
+        foreach ($pager['items'] as $item) {
+            $i = $item['index'];
+            $isActive = $item['isActive'];
             $anchorClone = clone $anchor;
-            $isActive = $i === $current;
             $list->addItem($anchorClone->href($isActive ?'#':static::PAGE.$i)->_add($i), $isActive ? function (Html $li) {
                 return $li->class('page-item active');
             }: null);
-            $lowest++;
         }
 
         if ($this->paging->getNbPages() > $current) {
@@ -113,6 +102,8 @@ class Pagination
 
         $li = Html::elem('li')->class('page-item');
 
-        return $nav->_add($list->build(null, $li)->class('pagination'));
+        $nav->_add($list->build(null, $li));
+
+        return TemplateModifier::modify(Pagination::class, $nav);
     }
 }
