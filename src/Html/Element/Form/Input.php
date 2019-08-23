@@ -1,13 +1,11 @@
 <?php
 
-namespace Html\Element;
+namespace Html\Element\Form;
 
 use Html\Html;
 
-class InputElement implements FormElement
+class Input implements FormElement
 {
-    use BuildTrait;
-
     const BUTTON = 'button';
     const CHECKBOX = 'checkbox';
     const COLOR = 'color';
@@ -34,16 +32,8 @@ class InputElement implements FormElement
     private $value;
     private $type;
 
-    public function __construct(string $type, string $name, $value)
+    public static function type(string $type, $value = null) : Html
     {
-        $this->name = $name;
-        $this->value = $value;
-        // todo validate types
-        $this->type = $type;
-    }
-
-    public function build()
-    {
-        return Html::solidus($this->type)->name($this->name)->value($this->value);
+        return Html::solidus('input')->type($type)->value($value);
     }
 }

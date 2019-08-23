@@ -14,6 +14,11 @@ trait CollectionTrait
         }
     }
 
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
     public function addItem($item, callable $callable = null)
     {
         $this->items[] = $item;

@@ -11,8 +11,8 @@ class UnOrderedList
 
     public function build(Html $ul = null, Html $li = null)
     {
-        $ul =  $ul ?: Html::elem('ul');
-        $li = $li ?: Html::elem('li');
+        $ul =  $ul ?? Html::elem('ul');
+        $li = $li ?? Html::elem('li');
 
         foreach ($this->items as $key => $item) {
             $cloneLi = clone $li;

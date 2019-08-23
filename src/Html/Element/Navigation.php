@@ -11,14 +11,14 @@ class Navigation implements NavigationInterface
     use BuildTrait;
 
     private $url;
-    private $name;
     private $matcher;
     private $collection;
+    private $navigationItems;
 
-    public function __construct(string $name)
+    public function __construct(string $name = null, array $navigationItems)
     {
-        $this->name = $name;
         $this->collection = new NavigationItemCollection();
+        $this->navigationItems = $navigationItems;
     }
 
     public function setModifierMatcher(ModifierMatcher $matcher)
@@ -26,14 +26,8 @@ class Navigation implements NavigationInterface
         $this->matcher = $matcher;
     }
 
-    public function getName(): string
+    public function addNavigationItem(NavigationItem $item): Navigation
     {
-        return $this->name;
-    }
-
-    public function addChild(string $name, string $route, array $options = null) : Navigation
-    {
-        $item = new NavigationItem($name, $route);
         $this->collection->addNavigationItem($item);
 
         return $this;
@@ -41,45 +35,43 @@ class Navigation implements NavigationInterface
 
     public function build()
     {
-        $nav = Html::elem('nav')->class('navbar navbar-expand-md navbar-dark bg-dark fixed-top');
-        $span = Html::elem('navbar-toggler-icon');
-        $div = Html::elem('collapse navbar-collapse')->id('navbarsExampleDefault');
-        $navItem = Html::elem('a')->class('nav-link');
+        $nav = Html::elem('nav')->class('nav nav-tabs border-0 flex-column flex-lg-row');
 
-        $button = Html::elem('nav')
-            ->class('navbar-toggler')
-            ->type('button')
-            ->data__toggle('collapse')
-            ->data__target('#navbarsExampleDefault')
-            ->aria__controls('navbarsExampleDefault')
-        ;
-        $nav->_add($button->_add($span));
+        $navLink = Html::elem('a')->class('nav-link');
+        $navItemLi = Html::elem('li')->class('nav-item');
 
-        $isActive = false;
+        $dropdown = Html::elem('div')->class('dropdown-menu dropdown-menu-arrow');
+        $dropdownItem = Html::elem('a')->class('dropdown-item ');
 
         $listItems = new UnOrderedList();
-        foreach ($this->collection->getNavigationItems() as $navigationItem) {
-            $cloneNavItem = clone $navItem;
-            $route = $this->matcher ? $this->matcher->getMatches($navigationItem->toArray()) : $navigationItem->toArray();
-            $listItems->addItem($cloneNavItem->href($route['uri']), $isActive ? function (Html $li) {
-                return $li->class('active');
-            }: null);
-            $cloneNavItem->_add($route['name']);
+        foreach ($items ?? $this->navigationItems as $navigationItem) {
+            $cloneNavLink = clone $navLink;
+
+            if (count($navigationItem['items']) > 0) {
+                $cloneDropdown = clone $dropdown;
+                foreach ($navigationItem['items'] as $item) {
+                    $cloneDropdownItem = clone $dropdownItem;
+                    $cloneDropdownItem->href($item['options']['route'])->_add($item['options']['label']);
+                    $cloneDropdown->_add($cloneDropdownItem);
+                }
+
+                $cloneNavLink
+                    ->class('nav-link', 'dropdown')
+                    ->href('javascript:void(0)')
+                    ->_attr('data-toggle', ['dropdown'])
+                    ->_add($navigationItem['options']['label'] ?? null)
+                    ->_add($cloneDropdown)
+                ;
+            } else {
+                $cloneNavLink
+                    ->href($navigationItem['options']['route'] ?? null)
+                    ->_add($navigationItem['options']['label'] ?? null)
+                ;
+            }
+
+            $listItems->addItem($cloneNavLink);
         }
 
-        $listItems->build()->class('navbar-nav mr-auto');
-
-        // brand elem
-        if ($this->url) {
-            $nav->_add(
-                Html::elem('a')
-                    ->class('navbar-brand')
-                    ->href($this->url)
-                    ->_add('title')
-
-            );
-        }
-
-        return $nav->_add($div->_add($listItems));
+        return $listItems->build(null, $navItemLi)->class('nav nav-tabs border-0 flex-column flex-lg-row');
     }
 }

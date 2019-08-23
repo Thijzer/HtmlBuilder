@@ -2,41 +2,40 @@
 
 namespace Html\Element;
 
-/**
- * Class NavigationItem
- * @package Html\Element
- *
- * Helper class to contstruct navigationItems
- */
+use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 
 class NavigationItem
 {
+    use CollectionTrait;
+
     private $name;
     private $route;
-    private $parent;
+    private $label;
 
-    public function __construct(string $name, string $route, NavigationItem $parent = null)
+    public function __construct(string $name, string $label, string $route)
     {
         $this->name = $name;
+        $this->label = $label;
         $this->route = $route;
-        $this->parent = $parent;
     }
 
-    public function getParent()
+    public function addNavigationItem(NavigationItem $item)
     {
-        return $this->parent;
+        $this->addItem($item);
     }
 
-    public function hasParent()
+    public function hasNavigationItems(): bool
     {
-        return $this->parent !== null;
+        return count($this->getItems()) > 0;
     }
 
     public function toArray()
     {
         return [
             'name' => $this->name,
-            'route' => $this->route
+            'label' => $this->label,
+            'route' => $this->route,
+            'items' => $this->items,
         ];
     }
 }

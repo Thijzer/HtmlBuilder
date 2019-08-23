@@ -2,6 +2,9 @@
 
 namespace Html\Element;
 
+use App\Bundle\CoreBundle\DataGrid\RowModifier\IconRowModifier;
+use App\Bundle\CoreBundle\DataGrid\RowModifier\LinkRowModifier;
+use App\Domain\CommonDomain\Arrayable;
 use Html\Html;
 use Html\Modifier\TemplateModifier;
 
@@ -29,12 +32,16 @@ class Table
         $this->rows[] = $rowData;
     }
 
-    public function addColumn(string $ColName, $function = null)
+    public function addColumn(string $ColName, string $label, array $columnModifiers = [], array $rowModifiers = [])
     {
-        $this->column[] = $ColName;
+        $this->column[$ColName] = $label;
 
-        if ($function) {
-            $this->modifiers[$ColName] = $function;
+        foreach ($columnModifiers as $modifier) {
+            $this->modifiers[$ColName]['column'][] = $modifier;
+        }
+
+        foreach ($rowModifiers as $modifier) {
+            $this->modifiers[$ColName]['row'][] = $modifier;
         }
 
         return $this;
@@ -47,28 +54,49 @@ class Table
 
     public function render() : string
     {
-        $tr = Html::elem('tr');
+        $tr = Html::elem('tr')->role('row');
         $th = Html::elem('th');
         $td = Html::elem('td');
 
         // head
         $thList = null;
+        $trHead = clone $tr;
         foreach ($this->column as $ColName) {
             $thCopy = clone $th;
-            $thList .= $thCopy->_add($ColName);
+            $thList .= $thCopy
+                //->class('sorting')
+                ->_attr('aria-controls', ['DataTables_Table_0'])
+                ->_attr('aria-label', ['Invoice Subject: activate to sort column ascending'])
+                ->_add($ColName)
+            ;
         }
+        $trHead->_add($thList);
 
         // body
         $trList = null;
         foreach ($this->rows as $row) {
             $trCopy = clone $tr;
             $tdList = null;
-            foreach ($this->column as $ColName) {
+            foreach (array_keys($this->column) as $ColName) {
                 $rowName = $row[$ColName] ?? '';
 
-                // functions
-                if (isset($this->modifiers[$ColName])) {
-                    $rowName = call_user_func($this->modifiers[$ColName], $row, $ColName);
+                // row functions
+                if (isset($this->modifiers[$ColName]['row'])) {
+                    foreach ($this->modifiers[$ColName]['row'] as $modifier) {
+                        if ($modifier instanceof Arrayable) {
+                            $modifier = $modifier->toArray();
+                            $rowName = Badge::createFromArray($modifier['options'][$rowName] ?? $modifier, $rowName);
+                            continue;
+                        }
+                        if (is_callable($modifier)) {
+                            $rowName = call_user_func($modifier, $rowName, $row);
+                            if ($rowName instanceof IconRowModifier) {
+                                $rowName = Icon::createFromModifier($rowName);
+                            } elseif ($rowName instanceof LinkRowModifier) {
+                                $rowName = Link::createFromModifier($rowName);
+                            }
+                        }
+                    }
                 }
 
                 // table data
@@ -83,7 +111,7 @@ class Table
         $tHead = Html::elem('thead');
         $tBody = Html::elem('tbody');
 
-        $table->_add($tHead->_add($thList), $tBody->_add($trList));
+        $table->_add($tHead->_add($trHead), $tBody->_add($trList));
 
         return TemplateModifier::modify(Table::class, $table);
     }

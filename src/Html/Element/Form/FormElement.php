@@ -1,5 +1,5 @@
 <?php
 
-namespace Html\Element;
+namespace Html\Element\Form;
 
 interface FormElement {}

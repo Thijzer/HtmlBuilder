@@ -8,6 +8,8 @@ namespace Html;
  * @method Html id(mixed $attribute)
  * @method Html aria__label(mixed $attribute)
  * @method Html type(mixed $attribute)
+ * @method Html for(mixed $attribute)
+ * @method Html value(mixed $attribute)
  */
 class Html
 {
@@ -22,37 +24,32 @@ class Html
         $this->tag = $tag;
     }
 
-    public static function elem(string $elem)
+    public static function elem(string $elem): self
     {
         return new Html('<'.$elem.' *></'.$elem.'>', $elem);
     }
 
-    public static function solidus(string $elem)
+    public static function solidus(string $elem): self
     {
-        return new Html('<'.$elem.' * />', $elem);
+        return new Html('<'.$elem.' */>', $elem);
     }
 
-    /**@return Html */
-    public function _attr(string $method, $args)
+    public function _attr(string $method, $args): self
     {
-        if ($method === 'type' && count($args) > 1) {
-            return $this;
-        }
         $this->args[$method] = $args;
 
         return $this;
     }
 
-    /**@return Html */
-    public function __call(string $method, $args)
+    public function __call(string $method, $args): self
     {
         return $this->_attr($method, $args);
     }
 
     /**@return Html */
-    public function _add(...$elems)
+    public function _add(...$elems): self
     {
-        foreach ($elems as  $elem) {
+        foreach ($elems as $elem) {
             $this->children[] = $elem;
         }
 
@@ -66,29 +63,31 @@ class Html
 
     private function render(): string
     {
-        $elem = $this->build;
+        try {
+            $elem = $this->build;
 
-        // arg builder of current
-        foreach ($this->args as $name => $arg) {
-            $arg = implode(' ', $arg);
-            $elem = str_replace('*', "$name=\"$arg\" *", $elem);
+            // arg builder of current
+            foreach (array_filter($this->args) as $name => $arg) {
+                $arg = implode(' ', $arg);
+                $elem = str_replace('*', "$name=\"$arg\" *", $elem);
+            }
+
+            return str_replace([' *>', ' */>'], '>'. implode('', $this->children), $elem);
+        } catch (\Exception $e) {
+
+            dump([
+                $this->tag,
+                current($this->args),
+                current($this->children),
+                $elem
+            ]);
+
+            throw $e;
         }
-
-        return str_replace(' *>', '>'. implode('',$this->children), $elem);
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->render();
     }
-
-//    public function options($name)
-//    {
-//        if (is_array($name)) {
-//            $name = implode(' ', $name);
-//        }
-//        $this->elem = str_replace('*', "$name *", $this->elem);
-//
-//        return $this;
-//    }
 }

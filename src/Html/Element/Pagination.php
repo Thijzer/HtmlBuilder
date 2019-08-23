@@ -93,7 +93,7 @@ class Pagination
             $buttonLast = clone $anchor;
             $spanD = clone $span;
             $buttonLast
-                ->href(static::PAGE.$max)
+                ->href(static::PAGE.$pager['max'])
                 ->aria__label('Last')
                 ->_add($spanD->_add($this->labels['links']['last']))
             ;

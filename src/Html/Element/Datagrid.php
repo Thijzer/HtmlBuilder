@@ -2,6 +2,9 @@
 
 namespace Html\Element;
 
+use Html\Element\Form\SearchBox;
+use Html\Element\Grid\PaginationCount;
+use Html\Element\Grid\PaginatonLimit;
 use Html\Html;
 use Html\Functions\PaginationInterface;
 use Html\Modifier\TemplateModifier;
@@ -29,28 +32,59 @@ class Datagrid
         return Html::elem('a')->href($url)->_add($name);
     }
 
+    /**
+     * <a class="icon" href="javascript:void(0)">
+    <i class="fe fe-edit"></i>
+    </a>
+     */
+    public function createIcon(string $url, string $name, string $label = null)
+    {
+        $span = Html::elem('i')->class('fe fe-'.$label);
+
+        return $this->createLink($url, '')->_add($span)->class('icon');
+    }
+
     public function createButton(string $url, string $name, string $label = null)
     {
-        $span = Html::elem('span');
-        return $this->createButton($url, $name)->_add($span->class('badge '.$label));
+        $span = Html::elem('span')->class('badge '.$label);
+
+        return $this->createLink($url, $name)->_add($span)->class('btn btn-secondary btn-sm');
     }
 
     public function build()
     {
         $this->table->setData($this->paging->getCurrentPageResults());
 
+        $options = [
+            [
+                'value' => '10',
+                'label' => '10',
+            ],
+            [
+                'value' => '25',
+                'label' => '25',
+            ],
+            [
+                'value' => '50',
+                'label' => '50',
+            ],
+        ];
+
+        $tableDiv = Html::elem('div');
+
         $datagrid = Html::elem('div')
-            ->_add($this->table)
-            ->_add($this->getPagination())
+          //  ->_add(SearchBox::label('Search: '))
+            ->_add($tableDiv->_add($this->table))
         ;
 
-        return TemplateModifier::modify(Datagrid::class, $datagrid);
-    }
-
-    private function getPagination()
-    {
-        if ($this->paging->haveToPaginate()) {
-            return new Pagination($this->paging);
+        if ($this->paging->canPaginate()) {
+            $datagrid
+                ->_add(new PaginationCount($this->paging))
+                //->_add(new PaginatonLimit($options))
+                ->_add(new Pagination($this->paging))
+            ;
         }
+
+        return TemplateModifier::modify(Datagrid::class, $datagrid);
     }
 }

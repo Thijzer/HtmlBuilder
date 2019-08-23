@@ -3,8 +3,9 @@
 namespace Html\Functions;
 
 use Html\Element\Navigation;
+use Html\Element\NavigationItem;
 
 interface NavigationInterface
 {
-    public function addChild(string $name, string $route, array $options = []) : Navigation;
+    public function addNavigationItem(NavigationItem $item): Navigation;
 }
