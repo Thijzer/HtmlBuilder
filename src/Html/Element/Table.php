@@ -14,6 +14,7 @@ class Table
     private $modifiers = [];
     private $rows = [];
     private $column = [];
+    private $allowHeader = true;
 
     public function __construct(array $data = [])
     {
@@ -32,9 +33,16 @@ class Table
         $this->rows[] = $rowData;
     }
 
-    public function addColumn(string $ColName, string $label, array $columnModifiers = [], array $rowModifiers = [])
+    public function addColumns(array $colNames)
     {
-        $this->column[$ColName] = $label;
+        foreach ($colNames as $colName) {
+            $this->addColumn($colName);
+        }
+    }
+
+    public function addColumn(string $ColName, string $label = null, array $columnModifiers = [], array $rowModifiers = [])
+    {
+        $this->column[$ColName] = $label ?? $ColName;
 
         foreach ($columnModifiers as $modifier) {
             $this->modifiers[$ColName]['column'][] = $modifier;
@@ -47,6 +55,11 @@ class Table
         return $this;
     }
 
+    public function disableHeader(): void
+    {
+        $this->allowHeader = false;
+    }
+
     public function __toString()
     {
         return $this->render();
@@ -54,23 +67,32 @@ class Table
 
     public function render() : string
     {
+        // structure_close
+        $table = Html::elem('table');
+        $tHead = Html::elem('thead');
+        $tBody = Html::elem('tbody');
+
         $tr = Html::elem('tr')->role('row');
         $th = Html::elem('th');
         $td = Html::elem('td');
 
         // head
-        $thList = null;
-        $trHead = clone $tr;
-        foreach ($this->column as $ColName) {
-            $thCopy = clone $th;
-            $thList .= $thCopy
-                //->class('sorting')
-                ->_attr('aria-controls', ['DataTables_Table_0'])
-                ->_attr('aria-label', ['Invoice Subject: activate to sort column ascending'])
-                ->_add($ColName)
-            ;
+        if ($this->allowHeader) {
+            $thList = null;
+            $trHead = clone $tr;
+            foreach ($this->column as $ColName) {
+                $thCopy = clone $th;
+                $thList .= $thCopy
+                    //->class('sorting')
+                    ->_attr('aria-controls', ['DataTables_Table_0'])
+                    ->_attr('aria-label', ['Invoice Subject: activate to sort column ascending'])
+                    ->_add($ColName)
+                ;
+            }
+            $trHead->_add($thList);
+
+            $table->_add($tHead->_add($trHead));
         }
-        $trHead->_add($thList);
 
         // body
         $trList = null;
@@ -106,12 +128,7 @@ class Table
             $trList .= $trCopy->_add($tdList);
         }
 
-        // structure_close
-        $table = Html::elem('table');
-        $tHead = Html::elem('thead');
-        $tBody = Html::elem('tbody');
-
-        $table->_add($tHead->_add($trHead), $tBody->_add($trList));
+        $table->_add($tBody->_add($trList));
 
         return TemplateModifier::modify(Table::class, $table);
     }
