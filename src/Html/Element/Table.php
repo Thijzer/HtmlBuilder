@@ -23,8 +23,8 @@ class Table
 
     public function setData(array $data)
     {
-        foreach ($data as $rowData) {
-            $this->addRow((array) $rowData);
+        foreach ($data as $key => $rowData) {
+            $this->rows[$key] = (array) $rowData;
         }
     }
 
@@ -96,26 +96,26 @@ class Table
 
         // body
         $trList = null;
-        foreach ($this->rows as $row) {
+        foreach ($this->rows as $lineNr => $row) {
             $trCopy = clone $tr;
             $tdList = null;
             foreach (array_keys($this->column) as $ColName) {
-                $rowName = $row[$ColName] ?? '';
+                $cellValue = $row[$ColName] ?? '';
 
                 // row functions
                 if (isset($this->modifiers[$ColName]['row'])) {
                     foreach ($this->modifiers[$ColName]['row'] as $modifier) {
                         if ($modifier instanceof Arrayable) {
                             $modifier = $modifier->toArray();
-                            $rowName = Badge::createFromArray($modifier['options'][$rowName] ?? $modifier, $rowName);
+                            $cellValue = Badge::createFromArray($modifier['options'][$cellValue] ?? $modifier, $cellValue);
                             continue;
                         }
                         if (is_callable($modifier)) {
-                            $rowName = call_user_func($modifier, $rowName, $row);
-                            if ($rowName instanceof IconRowModifier) {
-                                $rowName = Icon::createFromModifier($rowName);
-                            } elseif ($rowName instanceof LinkRowModifier) {
-                                $rowName = Link::createFromModifier($rowName);
+                            $cellValue = call_user_func($modifier, $cellValue, $row, $lineNr);
+                            if ($cellValue instanceof IconRowModifier) {
+                                $cellValue = Icon::createFromModifier($cellValue);
+                            } elseif ($cellValue instanceof LinkRowModifier) {
+                                $cellValue = Link::createFromModifier($cellValue);
                             }
                         }
                     }
@@ -123,7 +123,7 @@ class Table
 
                 // table data
                 $tdCopy = clone $td;
-                $tdList .= $tdCopy->_add($rowName);
+                $tdList .= $tdCopy->_add($cellValue);
             }
             $trList .= $trCopy->_add($tdList);
         }
