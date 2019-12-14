@@ -11,6 +11,6 @@
     </php>
 
     <testsuite name="Common Tests">
-        <directory>./src/Tests/</directory>
+        <directory>./tests/</directory>
     </testsuite>
 </phpunit>

@@ -10,7 +10,7 @@ And pass them as to you template engine.
 # Example
 
 ```php
-$table = new \Html\Table();
+$table = new \HtmlBuilder\Table();
 $table->setData($dataSet);
 $table
     ->add('#', 'rowcount')
