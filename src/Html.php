@@ -1,6 +1,6 @@
 <?php
 
-namespace Html;
+namespace HtmlBuilder;
 
 /**
  * @method Html href(mixed $attribute)
